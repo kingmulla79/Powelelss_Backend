@@ -92,7 +92,7 @@ UserSchema.methods.comparePassword = async function (
 // Access token
 UserSchema.methods.AccessToken = function () {
   return jwt.sign({ id: this._id }, process.env.ACCESS_TOKEN || "", {
-    expiresIn: "5m",
+    expiresIn: "2h",
   });
 };
 
@@ -102,36 +102,6 @@ UserSchema.methods.RefreshToken = function () {
     expiresIn: "3d",
   });
 };
-
-// UserSchema.statics.isThisUsernameInUse = async function (username) {
-//   if (!username) throw new Error("Invalid username: No username provided");
-//   try {
-//     const user = await this.findOne({ username });
-//     if (user) {
-//       return false;
-//     } else {
-//       return true;
-//     }
-//   } catch (error: any) {
-//     console.log("Error inside isThisUsernameInUse method", error.message);
-//     return false;
-//   }
-// };
-
-// UserSchema.statics.isThisEmailInUse = async function (email) {
-//   if (!email) throw new Error("Invalid email: No email provided");
-//   try {
-//     const user = await this.findOne({ email });
-//     if (user) {
-//       return false;
-//     } else {
-//       return true;
-//     }
-//   } catch (error: any) {
-//     console.log("Error inside isThisEmailInUse method", error.message);
-//     return false;
-//   }
-// };
 
 const UserModel: Model<IUser> = mongoose.model("User", UserSchema);
 
