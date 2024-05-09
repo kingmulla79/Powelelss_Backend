@@ -62,6 +62,21 @@ export const UserRegistration = CatchAsyncError(
           )
         );
       }
+
+      //password policy
+      const passwordPattern: RegExp =
+        /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
+      const password_test = passwordPattern.test(password);
+
+      if (!password_test) {
+        return next(
+          new ErrorHandler(
+            "The password must be 8 to 24 characters long with at least one uppercase letter, on lower case letter, one special character i.e [!@#$%] and one number",
+            400
+          )
+        );
+      }
+
       const user: IRegistrationBody = {
         username,
         email,
