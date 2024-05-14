@@ -23,13 +23,13 @@ interface IRegistrationBody {
   email: string;
   password: string;
   phone?: string;
-  avatar?: string;
+  avatar?: object;
 }
 
 export const UserRegistration = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { username, email, password, phone } = req.body;
+      let { username, email, password, phone, avatar } = req.body;
 
       if (!username || !email! || !password) {
         return next(new ErrorHandler("Please provide all the details", 400));
@@ -63,6 +63,14 @@ export const UserRegistration = CatchAsyncError(
         );
       }
 
+      const myCloud = await cloudinary.uploader.upload(avatar, {
+        folder: "avatars",
+      });
+      avatar = {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      };
+
       //password policy
       const passwordPattern: RegExp =
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -82,6 +90,7 @@ export const UserRegistration = CatchAsyncError(
         email,
         password,
         phone,
+        avatar,
       };
 
       const activationToken = createActivationToken(user);
@@ -163,13 +172,14 @@ export const UserActivation = CatchAsyncError(
       if (newUser.activationCode !== activation_code) {
         return next(new ErrorHandler("Invalid activation code used", 400));
       }
-      const { email, username, password, phone } = newUser.user;
+      const { email, username, password, phone, avatar } = newUser.user;
 
       await UserModel.create({
         email,
         password,
         username,
         phone,
+        avatar,
         isVerified: true,
       })
         .then((result) => {
