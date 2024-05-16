@@ -9,7 +9,7 @@ export const isAuthenticated = CatchAsyncError(
     const access_token = req.cookies.access_token; //req.headers.authorization;
     if (!access_token) {
       return next(
-        new ErrorHandler("Please login before accessing the resource", 400)
+        new ErrorHandler("Please login before accessing the resource", 401)
       );
     }
     // const token = access_token.split(" ")[1];
@@ -18,7 +18,7 @@ export const isAuthenticated = CatchAsyncError(
       process.env.ACCESS_TOKEN as string
     ) as JwtPayload;
     if (!decoded) {
-      return next(new ErrorHandler("Invalid access token", 400));
+      return next(new ErrorHandler("Invalid access token", 401));
     }
     const user = await redis.get(decoded.id);
 
@@ -36,7 +36,7 @@ export const authorizedRoles = (...roles: string[]) => {
       return next(
         new ErrorHandler(
           `Role ${req.user?.role} is not allowed to access this route`,
-          401
+          403
         )
       );
     }
