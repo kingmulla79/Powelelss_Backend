@@ -108,7 +108,7 @@ export const UserRegistration = CatchAsyncError(
           data,
         })
           .then(() => {
-            res.status(201).json({
+            res.status(200).json({
               success: true,
               message: `Account creation successful. Check the email: ${user.email} for an activation code to complete the setup process`,
               activationToken: activationToken.token,
@@ -271,7 +271,7 @@ export const UserUpdateAccessToken = CatchAsyncError(
         { id: user._id },
         process.env.ACCESS_TOKEN as string,
         {
-          expiresIn: "10m",
+          expiresIn: "2h",
         }
       );
       const refreshToken = jwt.sign(
@@ -426,7 +426,7 @@ export const UserUpdatePassword = CatchAsyncError(
       await user.save();
 
       await redis.set(req.user?._id, JSON.stringify(user));
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: `Password updated successfully`,
         user,
@@ -477,7 +477,7 @@ export const UserUpdateProfilePic = CatchAsyncError(
 
       await redis.set(userId, JSON.stringify(user));
 
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: "Profile picture successfully updated",
         user,
@@ -515,7 +515,7 @@ export const UserUpdateRole = CatchAsyncError(
       await user
         .save()
         .then(() => {
-          res.status(200).json({
+          res.status(201).json({
             success: true,
             message: `The user role successfully updated for ${user.username}`,
             user,
