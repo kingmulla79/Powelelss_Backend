@@ -18,6 +18,20 @@ export const StaffEntry = CatchAsyncError(
         basic_salary,
       } = req.body as IStaff;
 
+      if (
+        !id_no &&
+        !first_name &&
+        !surname &&
+        !P_no &&
+        !phone_no &&
+        !job_title &&
+        !basic_salary
+      ) {
+        return next(
+          new ErrorHandler(`Please provide all the required information`, 422)
+        );
+      }
+
       await StaffModel.create({
         id_no,
         first_name,
@@ -36,12 +50,12 @@ export const StaffEntry = CatchAsyncError(
           return next(
             new ErrorHandler(
               `The staff data save operation was unsuccessful - ${error}`,
-              400
+              500
             )
           );
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -52,22 +66,22 @@ export const SingleStaffData = CatchAsyncError(
     try {
       const { id } = req.params;
       if (!id) {
-        return next(new ErrorHandler("There is no ID provided", 400));
+        return next(new ErrorHandler("There is no ID provided", 422));
       }
       GetStaffById(id, res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
 
-//single staff data
+//staff data
 export const AllStaffData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       GetAllStaffData(res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -106,12 +120,12 @@ export const UpdateStaffData = CatchAsyncError(
         !basic_salary
       ) {
         return next(
-          new ErrorHandler("There is no information provided as an update", 400)
+          new ErrorHandler("There is no information provided as an update", 422)
         );
       }
       const staff = await StaffModel.findById(id);
       if (!staff) {
-        new ErrorHandler("There is no staff with the specified id", 400);
+        new ErrorHandler("There is no staff with the specified id", 409);
       }
       if (staff && id_no) {
         staff.id_no = id_no;
@@ -144,10 +158,10 @@ export const UpdateStaffData = CatchAsyncError(
           });
         })
         .catch((error: any) => {
-          return next(new ErrorHandler(error.message, 400));
+          return next(new ErrorHandler(error.message, 500));
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -159,16 +173,16 @@ export const DeleteStaffData = CatchAsyncError(
       const id = req.params.id;
       const staff = await StaffModel.findByIdAndDelete(id);
       if (!staff) {
-        return next(new ErrorHandler("The staff doesn't exist", 400));
+        return next(new ErrorHandler("The staff doesn't exist", 409));
       }
 
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: `The staff ${staff.first_name} ${staff.surname} successfully deleted`,
         staff,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );

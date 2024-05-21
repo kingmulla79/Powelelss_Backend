@@ -18,7 +18,7 @@ export const GetUserById = async (id: string, res: Response) => {
 
 export const GetAllUsers = async (res: Response) => {
   const users = await UserModel.find().sort({ createdAt: -1 });
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: "All users successfully fetched",
     users,

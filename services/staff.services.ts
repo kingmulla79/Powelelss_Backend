@@ -17,7 +17,7 @@ export const GetStaffById = async (id: string, res: Response) => {
 export const GetAllStaffData = async (res: Response) => {
   const staff_data = await StaffModel.find().sort({ createdAt: -1 });
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: "All staff data successfully fetched",
     staff_data,

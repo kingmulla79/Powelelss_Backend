@@ -10,6 +10,12 @@ export const ItemEntry = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, desc, category, price, product_pic, purpose } = req.body;
+      if (!name && !desc && !category && !price && !product_pic && !purpose) {
+        return next(
+          new ErrorHandler(`Please provide all the required information`, 422)
+        );
+      }
+
       const myCloud = await cloudinary.uploader.upload(product_pic, {
         folder: "products",
       });
@@ -28,16 +34,16 @@ export const ItemEntry = CatchAsyncError(
       })
         .then(() => {
           res
-            .status(200)
+            .status(201)
             .json({ success: true, message: "Item data saved successfully" });
         })
         .catch((error: any) => {
           return next(
-            new ErrorHandler("The data save operation was unsuccessful", 400)
+            new ErrorHandler("The data save operation was unsuccessful", 500)
           );
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -48,11 +54,11 @@ export const SingleItemData = CatchAsyncError(
     try {
       const { id } = req.params;
       if (!id) {
-        return next(new ErrorHandler("There is no ID provided", 400));
+        return next(new ErrorHandler("There is no ID provided", 422));
       }
       GetItemById(id, res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -63,7 +69,7 @@ export const AllItems = CatchAsyncError(
     try {
       GetAllItems(res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -86,12 +92,12 @@ export const UpdateItemData = CatchAsyncError(
       const { id } = req.params;
       if (!name && !desc && !price && !category && !product_pic && !purpose) {
         return next(
-          new ErrorHandler("There is no information provided as an update", 400)
+          new ErrorHandler("There is no information provided as an update", 422)
         );
       }
       const item = await ItemModel.findById(id);
       if (!item) {
-        new ErrorHandler("There is no item with the specified id", 400);
+        new ErrorHandler("There is no item with the specified id", 409);
       }
       if (item && name) {
         item.name = name;
@@ -129,10 +135,10 @@ export const UpdateItemData = CatchAsyncError(
           });
         })
         .catch((error: any) => {
-          return next(new ErrorHandler(error.message, 400));
+          return next(new ErrorHandler(error.message, 500));
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -144,16 +150,16 @@ export const DeleteItemData = CatchAsyncError(
       const id = req.params.id;
       const item = await ItemModel.findByIdAndDelete(id);
       if (!item) {
-        return next(new ErrorHandler("The item doesn't exist", 400));
+        return next(new ErrorHandler("The item doesn't exist", 409));
       }
 
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: `The item ${item.name} successfully deleted`,
         item,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );

@@ -32,7 +32,7 @@ export const UserRegistration = CatchAsyncError(
       let { username, email, password, phone, avatar } = req.body;
 
       if (!username || !email! || !password) {
-        return next(new ErrorHandler("Please provide all the details", 400));
+        return next(new ErrorHandler("Please provide all the details", 422));
       }
 
       const isEmailExist = await UserModel.findOne({ email });
@@ -40,7 +40,7 @@ export const UserRegistration = CatchAsyncError(
         return next(
           new ErrorHandler(
             "The email is already in use. Please choose another one",
-            400
+            409
           )
         );
       }
@@ -49,7 +49,7 @@ export const UserRegistration = CatchAsyncError(
         return next(
           new ErrorHandler(
             "The username is already in use. Please choose another one",
-            400
+            409
           )
         );
       }
@@ -58,7 +58,7 @@ export const UserRegistration = CatchAsyncError(
         return next(
           new ErrorHandler(
             "The phone is already in use. Please choose another one",
-            400
+            409
           )
         );
       }
@@ -118,15 +118,15 @@ export const UserRegistration = CatchAsyncError(
             return next(
               new ErrorHandler(
                 `Error while sending activation mail. ${error}`,
-                400
+                500
               )
             );
           });
       } catch (error: any) {
-        return next(new ErrorHandler(error.message, 400));
+        return next(new ErrorHandler(error.message, 500));
       }
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -161,7 +161,7 @@ export const UserActivation = CatchAsyncError(
         return next(
           new ErrorHandler(
             "The activation code and token must be provided",
-            400
+            422
           )
         );
       }
@@ -189,10 +189,10 @@ export const UserActivation = CatchAsyncError(
           });
         })
         .catch((error) => {
-          return next(new ErrorHandler("Error while verifying user data", 400));
+          return next(new ErrorHandler("Error while verifying user data", 500));
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -210,22 +210,22 @@ export const UserLogin = CatchAsyncError(
 
       if (!email || !password) {
         return next(
-          new ErrorHandler("Please enter both the email and password", 400)
+          new ErrorHandler("Please enter both the email and password", 422)
         );
       }
       const user = await UserModel.findOne({ email: email }).select(
         "+password"
       );
       if (!user) {
-        return next(new ErrorHandler("Invalid email or password", 400));
+        return next(new ErrorHandler("Invalid email or password", 401));
       }
       const isPasswordMatch = await user?.comparePassword(password);
       if (!isPasswordMatch) {
-        return next(new ErrorHandler("Invalid email or password", 400));
+        return next(new ErrorHandler("Invalid email or password", 401));
       }
       sendToken(user, 200, res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -243,7 +243,7 @@ export const UserLogout = CatchAsyncError(
         message: `User succcessfully logged out`,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -258,12 +258,12 @@ export const UserUpdateAccessToken = CatchAsyncError(
         process.env.REFRESH_TOKEN as string
       ) as JwtPayload;
       if (!decode) {
-        return next(new ErrorHandler("Could refresh token", 400));
+        return next(new ErrorHandler("Could refresh token", 401));
       }
       const session = await redis.get(decode.id as string);
       if (!session) {
         return next(
-          new ErrorHandler("Please login to access these resources", 400)
+          new ErrorHandler("Please login to access these resources", 401)
         );
       }
       const user = JSON.parse(session);
@@ -291,7 +291,7 @@ export const UserUpdateAccessToken = CatchAsyncError(
 
       next();
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -304,7 +304,7 @@ export const UserGetUserInfo = CatchAsyncError(
       const userID = req.user?._id;
       GetUserById(userID, res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -316,7 +316,7 @@ export const UserGetAllUsersInfo = CatchAsyncError(
     try {
       GetAllUsers(res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -340,12 +340,12 @@ export const UserSocialAuth = CatchAsyncError(
           avatar,
           isVerified: true,
         });
-        sendToken(newUser, 200, res);
+        sendToken(newUser, 201, res);
       } else {
         sendToken(existUser, 200, res);
       }
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -360,7 +360,7 @@ export const UserUpdateInfo = CatchAsyncError(
     try {
       const { username } = req.body as IUpdateUserInfo;
       if (!username) {
-        return next(new ErrorHandler(`No information to update`, 400));
+        return next(new ErrorHandler(`No information to update`, 422));
       }
       const userId = req.user?._id;
       const user = await UserModel.findById(userId);
@@ -369,7 +369,7 @@ export const UserUpdateInfo = CatchAsyncError(
         const isUsernameExist = await UserModel.findOne({ username: username });
         if (isUsernameExist) {
           return next(
-            new ErrorHandler(`A user with this username already exist`, 400)
+            new ErrorHandler(`A user with this username already exist`, 409)
           );
         }
 
@@ -402,23 +402,23 @@ export const UserUpdatePassword = CatchAsyncError(
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
       if (!oldPassword || !newPassword) {
         return next(
-          new ErrorHandler(`Please provide all the information required`, 400)
+          new ErrorHandler(`Please provide all the information required`, 422)
         );
       }
       const user = await UserModel.findById(req.user?._id).select("+password");
 
       if (user?.password === undefined) {
-        return next(new ErrorHandler(`The password can't be updated`, 400));
+        return next(new ErrorHandler(`The password can't be updated`, 409));
       }
       const isPasswordMatch = await user?.comparePassword(oldPassword);
 
       if (!isPasswordMatch) {
-        return next(new ErrorHandler(`Invalid old password`, 400));
+        return next(new ErrorHandler(`Invalid old password`, 409));
       }
 
       if (isPasswordMatch && oldPassword === newPassword) {
         return next(
-          new ErrorHandler(`The old and new passwords cannot be the same`, 400)
+          new ErrorHandler(`The old and new passwords cannot be the same`, 409)
         );
       }
       user.password = newPassword;
@@ -432,7 +432,7 @@ export const UserUpdatePassword = CatchAsyncError(
         user,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -446,6 +446,14 @@ export const UserUpdateProfilePic = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { avatar } = req.body;
+      if (!avatar) {
+        return next(
+          new ErrorHandler(
+            `Please provide the avatar to update user information`,
+            422
+          )
+        );
+      }
       const userId = req.user?._id;
 
       const user = await UserModel.findById(userId);
@@ -483,7 +491,7 @@ export const UserUpdateProfilePic = CatchAsyncError(
         user,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -498,16 +506,13 @@ export const UserUpdateRole = CatchAsyncError(
         return next(
           new ErrorHandler(
             "There is no user with the specified email address",
-            400
+            422
           )
         );
       }
       if (user.role === role) {
         return next(
-          new ErrorHandler(
-            "There is updated role is the same as the user role",
-            400
-          )
+          new ErrorHandler("The updated role is the same as the user role", 409)
         );
       }
       user.role = role;
@@ -522,10 +527,10 @@ export const UserUpdateRole = CatchAsyncError(
           });
         })
         .catch((error) => {
-          return next(new ErrorHandler(error.message, 400));
+          return next(new ErrorHandler(error.message, 500));
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -537,7 +542,7 @@ export const UserDeleteUser = CatchAsyncError(
       const id = req.params.id;
       const user = await UserModel.findByIdAndDelete(id);
       if (!user) {
-        return next(new ErrorHandler("The user doesn't exist", 400));
+        return next(new ErrorHandler("The user doesn't exist", 409));
       }
 
       if (user.avatar.public_id) {
@@ -549,7 +554,7 @@ export const UserDeleteUser = CatchAsyncError(
       await redis.del(id).then((result) => {
         console.log("User cache successfully cleared");
       });
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: `The user ${user.username} successfully deleted`,
         user,
@@ -567,14 +572,14 @@ export const UserResetMail = CatchAsyncError(
       const { email, link } = req.body;
       if (!email || !link) {
         return next(
-          new ErrorHandler("Please provide all the necessary information", 400)
+          new ErrorHandler("Please provide all the necessary information", 422)
         );
       }
 
       const isEmailExist = await UserModel.findOne({ email });
       if (!isEmailExist) {
         return next(
-          new ErrorHandler("There is no user with the specified mail", 400)
+          new ErrorHandler("There is no user with the specified mail", 409)
         );
       }
 
@@ -596,10 +601,10 @@ export const UserResetMail = CatchAsyncError(
           message: `Email successfully sent. Check your mail to reset your password`,
         });
       } catch (error: any) {
-        return next(new ErrorHandler(error.message, 400));
+        return next(new ErrorHandler(error.message, 500));
       }
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -616,7 +621,7 @@ export const UserForgotPassword = CatchAsyncError(
       const { password, passwordConfirm } = req.body as IForgotPassword;
       if (!password || !passwordConfirm) {
         return next(
-          new ErrorHandler(`Please provide all the information required`, 400)
+          new ErrorHandler(`Please provide all the information required`, 422)
         );
       }
       if (password !== passwordConfirm) {
@@ -626,7 +631,7 @@ export const UserForgotPassword = CatchAsyncError(
         "+password"
       );
       if (!user) {
-        return next(new ErrorHandler(`No user with the provided email`, 400));
+        return next(new ErrorHandler(`No user with the provided email`, 409));
       }
 
       user.password = password;
@@ -634,13 +639,13 @@ export const UserForgotPassword = CatchAsyncError(
       await user.save();
 
       await redis.set(req.user?._id, JSON.stringify(user));
-      res.status(200).json({
+      res.status(201).json({
         success: true,
         message: `Password updated successfully`,
         user,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );

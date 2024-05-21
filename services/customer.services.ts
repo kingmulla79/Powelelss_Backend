@@ -16,7 +16,7 @@ export const GetCustomerById = async (id: string, res: Response) => {
 export const GetAllCustomers = async (res: Response) => {
   const customers = await CustomerModel.find().sort({ createdAt: -1 });
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: "All customers successfully fetched",
     customers,

@@ -17,7 +17,7 @@ export const GetItemById = async (id: string, res: Response) => {
 export const GetAllItems = async (res: Response) => {
   const items = await ItemModel.find().sort({ createdAt: -1 });
 
-  res.status(201).json({
+  res.status(200).json({
     success: true,
     message: "All items successfully fetched",
     items,
