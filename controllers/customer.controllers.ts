@@ -11,6 +11,11 @@ export const CustomerEntry = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     const { name, email, address, contact_person, phone } =
       req.body as ICustomer;
+    if (!name && !email && !address && !contact_person && !phone) {
+      return next(
+        new ErrorHandler(`Please provide all the required information`, 422)
+      );
+    }
 
     await CustomerModel.create({ name, email, address, contact_person, phone })
       .then(() =>
@@ -22,7 +27,7 @@ export const CustomerEntry = CatchAsyncError(
         return next(
           new ErrorHandler(
             `The customer data save operation was unsuccessful - ${error}`,
-            400
+            500
           )
         );
       });
@@ -34,7 +39,7 @@ export const CustomerDetails = CatchAsyncError(
     try {
       GetAllCustomers(res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -44,7 +49,7 @@ export const SingleCustomerDetails = CatchAsyncError(
       const { id } = req.params;
       GetCustomerById(id, res);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -64,12 +69,12 @@ export const UpdateCustomerDetails = CatchAsyncError(
       const { id } = req.params;
       if (!name && !email && !contact_person && !address && !phone) {
         return next(
-          new ErrorHandler("There is no information provided as an update", 400)
+          new ErrorHandler("There is no information provided as an update", 422)
         );
       }
       const customer = await CustomerModel.findById(id);
       if (!customer) {
-        new ErrorHandler("There is no customer with the specified id", 400);
+        new ErrorHandler("There is no customer with the specified id", 409);
       }
       if (customer && name) {
         customer.name = name;
@@ -96,10 +101,10 @@ export const UpdateCustomerDetails = CatchAsyncError(
           });
         })
         .catch((error: any) => {
-          return next(new ErrorHandler(error.message, 400));
+          return next(new ErrorHandler(error.message, 500));
         });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -111,7 +116,7 @@ export const DeleteCustomerData = CatchAsyncError(
       const id = req.params.id;
       const customer = await CustomerModel.findByIdAndDelete(id);
       if (!customer) {
-        return next(new ErrorHandler("The customer doesn't exist", 400));
+        return next(new ErrorHandler("The customer doesn't exist", 409));
       }
 
       res.status(200).json({
@@ -120,7 +125,7 @@ export const DeleteCustomerData = CatchAsyncError(
         customer,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
