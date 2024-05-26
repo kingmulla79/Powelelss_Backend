@@ -36,7 +36,6 @@ const StaffSchema: Schema<IStaff> = new mongoose.Schema(
     P_no: {
       type: String,
       required: true,
-      unique: true,
     },
     basic_salary: {
       type: Number,
