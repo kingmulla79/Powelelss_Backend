@@ -22,7 +22,7 @@ const UserRouter = express.Router();
 UserRouter.post("/register", UserRegistration);
 UserRouter.post("/user-activation", UserActivation);
 UserRouter.post("/login", UserLogin);
-UserRouter.post("/logout", isAuthenticated, UserLogout);
+UserRouter.post("/logout", UserLogout);
 UserRouter.get(
   "/get-user-info",
   UserUpdateAccessToken,

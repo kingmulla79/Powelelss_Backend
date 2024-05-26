@@ -1,27 +1,19 @@
 import { Request, Response, NextFunction } from "express";
-import AllowanceModel, { IAllowances } from "../models/allowances.model";
+import DeductionModel, { IDeductions } from "../models/deduction.models";
 import ErrorHandler from "../utils/Errorhandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import StaffModel from "../models/staff.models";
 import {
-  GetAllAllowances,
-  GetAllowanceById,
-} from "../services/allowances.services";
+  GetAllDeductions,
+  GetDeductionById,
+} from "../services/deductions.services";
 
-export const AllowanceEntry = CatchAsyncError(
+export const DeductionEntry = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id_no, arrears, month, year, imprest_amount, transport, house } =
-        req.body as IAllowances;
-      if (
-        !id_no &&
-        !arrears &&
-        !month &&
-        !year &&
-        !imprest_amount &&
-        !transport &&
-        !house
-      ) {
+      const { id_no, month, year, nhif, nssf, advances, taxes } =
+        req.body as IDeductions;
+      if (!id_no && !nhif && !month && !year && !nssf && !advances && !taxes) {
         return next(
           new ErrorHandler(`Please provide all the required information`, 422)
         );
@@ -37,26 +29,26 @@ export const AllowanceEntry = CatchAsyncError(
         );
       }
 
-      await AllowanceModel.create({
+      await DeductionModel.create({
         staff_member: staff._id,
         id_no,
-        arrears,
+        advances,
         month,
         year,
-        imprest_amount,
-        transport,
-        house,
+        taxes,
+        nhif,
+        nssf,
       })
         .then(() => {
           res.status(201).json({
             success: true,
-            messsage: `Allowance data saved successfully`,
+            messsage: `Deduction data saved successfully`,
           });
         })
         .catch((error) => {
           return next(
             new ErrorHandler(
-              `The allowance data save operation was unsuccessful - ${error}`,
+              `The deduction data save operation was unsuccessful - ${error}`,
               500
             )
           );
@@ -67,59 +59,51 @@ export const AllowanceEntry = CatchAsyncError(
   }
 );
 
-//single allowances data
-export const SingleAllowanceData = CatchAsyncError(
+//single deduction data
+export const SingleDeductionData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       if (!id) {
         return next(new ErrorHandler("There is no ID provided", 422));
       }
-      GetAllowanceById(id, res);
+      GetDeductionById(id, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
   }
 );
 
-//allowance data
-export const AllAllowancesData = CatchAsyncError(
+//Deduction data
+export const AllDeductionsData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      GetAllAllowances(res);
+      GetAllDeductions(res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
   }
 );
 
-interface IAllowancesUpdate {
+interface IDeductionsUpdate {
   id_no: string;
-  arrears: string;
   month: string;
   year: string;
-  imprest_amount: string;
-  transport: string;
-  house: string;
+  nhif: string;
+  nssf: string;
+  advances: string;
+  taxes: string;
 }
-//update allowance data
-export const UpdateAllowanceData = CatchAsyncError(
+//update deduction data
+export const UpdateDeductionData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id_no, arrears, month, year, imprest_amount, transport, house } =
-        req.body as IAllowancesUpdate;
+      const { id_no, advances, month, year, nhif, nssf, taxes } =
+        req.body as IDeductionsUpdate;
 
       const { id } = req.params;
 
-      if (
-        !id_no &&
-        !arrears &&
-        !month &&
-        !year &&
-        !imprest_amount &&
-        !transport &&
-        !house
-      ) {
+      if (!id_no && !advances && !month && !year && !nhif && !nssf && !taxes) {
         return next(
           new ErrorHandler("There is no information provided as an update", 422)
         );
@@ -134,39 +118,39 @@ export const UpdateAllowanceData = CatchAsyncError(
           )
         );
       }
-      const allowance = await AllowanceModel.findById(id);
-      if (!allowance) {
-        new ErrorHandler("There is no staff with the specified id", 409);
+      const deduction = await DeductionModel.findById(id);
+      if (!deduction) {
+        new ErrorHandler("There is no deduction with the specified id", 409);
       }
-      if (allowance && id_no) {
-        allowance.id_no = id_no;
-        allowance.staff_member = staff._id;
+      if (deduction && id_no) {
+        deduction.id_no = id_no;
+        deduction.staff_member = staff._id;
       }
-      if (allowance && arrears) {
-        allowance.arrears = arrears;
+      if (deduction && advances) {
+        deduction.advances = advances;
       }
-      if (allowance && month) {
-        allowance.month = month;
+      if (deduction && month) {
+        deduction.month = month;
       }
-      if (allowance && imprest_amount) {
-        allowance.imprest_amount = imprest_amount;
+      if (deduction && nhif) {
+        deduction.nhif = nhif;
       }
-      if (allowance && year) {
-        allowance.year = year;
+      if (deduction && year) {
+        deduction.year = year;
       }
-      if (allowance && transport) {
-        allowance.transport = transport;
+      if (deduction && nssf) {
+        deduction.nssf = nssf;
       }
-      if (allowance && house) {
-        allowance.house = house;
+      if (deduction && taxes) {
+        deduction.taxes = taxes;
       }
-      await allowance
+      await deduction
         ?.save()
         .then(() => {
           res.status(201).json({
             success: true,
             message: "Information successfully updated",
-            allowance,
+            deduction,
           });
         })
         .catch((error: any) => {
@@ -178,20 +162,20 @@ export const UpdateAllowanceData = CatchAsyncError(
   }
 );
 
-// delete allowance
-export const DeleteAllowanceData = CatchAsyncError(
+// delete deduction
+export const DeleteDeductionData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
-      const allowance = await AllowanceModel.findByIdAndDelete(id);
-      if (!allowance) {
-        return next(new ErrorHandler("The allowance doesn't exist", 409));
+      const deduction = await DeductionModel.findByIdAndDelete(id);
+      if (!deduction) {
+        return next(new ErrorHandler("The deduction doesn't exist", 409));
       }
 
       res.status(200).json({
         success: true,
-        message: `The allowance data successfully deleted`,
-        allowance,
+        message: `The deduction data successfully deleted`,
+        deduction,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
