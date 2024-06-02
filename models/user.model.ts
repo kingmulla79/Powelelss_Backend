@@ -63,7 +63,7 @@ const UserSchema: Schema<IUser> = new mongoose.Schema(
     },
     role: {
       type: String,
-      default: "admin",
+      default: "user",
     },
     isVerified: {
       type: Boolean,
