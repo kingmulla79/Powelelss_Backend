@@ -63,13 +63,15 @@ export const UserRegistration = CatchAsyncError(
         );
       }
 
-      const myCloud = await cloudinary.uploader.upload(avatar, {
-        folder: "avatars",
-      });
-      avatar = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
+      if (avatar) {
+        const myCloud = await cloudinary.uploader.upload(avatar, {
+          folder: "avatars",
+        });
+        avatar = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+      }
 
       //password policy
       const passwordPattern: RegExp =
@@ -103,7 +105,7 @@ export const UserRegistration = CatchAsyncError(
       try {
         await sendMail({
           email: email,
-          subject: "QuizzHacks Activation",
+          subject: "Powelelss Activation",
           template: "Activation-mails.ejs",
           data,
         })
@@ -591,7 +593,7 @@ export const UserResetMail = CatchAsyncError(
       try {
         await sendMail({
           email: email,
-          subject: "QuizzHacks Activation",
+          subject: "Powelelss Update Password",
           template: "Reset-Password.ejs",
           data,
         });
