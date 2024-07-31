@@ -37,19 +37,19 @@ const QuotationSchema = new Schema<IQuotation>({
   },
   client_name: {
     type: String,
-    required: true,
+    // required: true,
   },
   client_email: {
     type: String,
-    required: true,
+    // required: true,
   },
   client_address: {
     type: String,
-    required: true,
+    // required: true,
   },
   client_contact_number: {
     type: String,
-    required: true,
+    // required: true,
   },
   quotation_date: {
     type: String,
