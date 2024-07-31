@@ -30,12 +30,11 @@ const ItemSchema: Schema<IItems> = new mongoose.Schema(
       required: true,
     },
     product_photo: {
-      public_id: { type: String, required: true },
-      url: { type: String, required: true },
+      public_id: { type: String },
+      url: { type: String },
     },
     purpose: {
       type: String,
-      required: true,
     },
   },
   { timestamps: true }
