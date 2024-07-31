@@ -18,6 +18,7 @@ export interface IQuotation extends Document {
   terms: string;
   quotation_type: string;
   quotation_details: IQuotationDetails[];
+  status: string;
   count: number;
 }
 
@@ -67,6 +68,10 @@ const QuotationSchema = new Schema<IQuotation>({
     required: true,
   },
   quotation_details: [QuotationDetailsSchema],
+  status: {
+    type: String,
+    required: true,
+  },
   count: {
     type: Number,
     required: true,

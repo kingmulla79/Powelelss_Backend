@@ -10,20 +10,22 @@ export const ItemEntry = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, desc, category, price, product_pic, purpose } = req.body;
-      if (!name && !desc && !category && !price && !product_pic && !purpose) {
+      if (!name && !desc && !category && !price) {
         return next(
           new ErrorHandler(`Please provide all the required information`, 422)
         );
       }
+      let product_photo = {};
+      if (product_pic) {
+        const myCloud = await cloudinary.uploader.upload(product_pic, {
+          folder: "products",
+        });
 
-      const myCloud = await cloudinary.uploader.upload(product_pic, {
-        folder: "products",
-      });
-      const product_photo = {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      };
-
+        product_photo = {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        };
+      }
       await ItemModel.create({
         name,
         desc,
@@ -112,7 +114,9 @@ export const UpdateItemData = CatchAsyncError(
         item.category = category;
       }
       if (item && product_pic) {
-        await cloudinary.uploader.destroy(item?.product_photo?.public_id);
+        if (item.product_photo.public_id) {
+          await cloudinary.uploader.destroy(item?.product_photo?.public_id);
+        }
         const myCloud = await cloudinary.uploader.upload(product_pic, {
           folder: "products",
         });

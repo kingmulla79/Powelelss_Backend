@@ -49,6 +49,7 @@ export const QuotationEntry = CatchAsyncError(
         terms,
         quotation_type,
         quotation_details,
+        status,
         count,
       } = req.body as IQuotation;
       if (
@@ -62,6 +63,7 @@ export const QuotationEntry = CatchAsyncError(
         !terms &&
         !quotation_type &&
         !quotation_details &&
+        !status &&
         !count
       ) {
         return next(
@@ -80,6 +82,7 @@ export const QuotationEntry = CatchAsyncError(
         terms,
         quotation_type,
         quotation_details,
+        status,
         count,
       })
         .then(() => {
@@ -143,6 +146,7 @@ export const UpdateQuotationData = CatchAsyncError(
         terms,
         quotation_type,
         quotation_details,
+        status,
         count,
       } = req.body as IQuotation;
       if (
@@ -156,6 +160,7 @@ export const UpdateQuotationData = CatchAsyncError(
         !terms &&
         !quotation_type &&
         !quotation_details &&
+        !status &&
         !count
       ) {
         return next(
@@ -199,6 +204,9 @@ export const UpdateQuotationData = CatchAsyncError(
       }
       if (quotation && quotation_details) {
         quotation.quotation_details = quotation_details;
+      }
+      if (quotation && status) {
+        quotation.status = status;
       }
       if (quotation && count) {
         quotation.count = count;
