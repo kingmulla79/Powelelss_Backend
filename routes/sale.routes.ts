@@ -3,57 +3,65 @@ import express from "express";
 import { UserUpdateAccessToken } from "../controllers/user.controllers";
 import { authorizedRoles, isAuthenticated } from "../middleware/Auth";
 import {
-  AllQuotationsData,
-  DeleteQuotationData,
-  QuotationCodeRetrieve,
-  QuotationEntry,
-  SingleQuotationData,
-  UpdateQuotationData,
-} from "../controllers/quotation.controllers";
+  AllSalesData,
+  DeleteSaleData,
+  SaleCodeRetrieve,
+  SaleEntry,
+  SaleFilter,
+  SingleSaleData,
+  UpdateSaleData,
+} from "../controllers/sale.controllers";
 
-const QuotationRouter = express.Router();
+const SaleRouter = express.Router();
 
-QuotationRouter.get(
+SaleRouter.get(
   "/get-count",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  QuotationCodeRetrieve
+  SaleCodeRetrieve
 );
-QuotationRouter.post(
-  "/new-quotation",
+SaleRouter.post(
+  "/new-sale",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  QuotationEntry
+  SaleEntry
 );
-QuotationRouter.get(
-  "/single-quotation/:id",
+SaleRouter.get(
+  "/single-sale/:id",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  SingleQuotationData
+  SingleSaleData
 );
-QuotationRouter.get(
-  "/all-quotations",
+SaleRouter.get(
+  "/sale-type/:type",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  AllQuotationsData
+  SaleFilter
 );
-QuotationRouter.put(
-  "/update-quotation/:id",
+SaleRouter.get(
+  "/all-sales",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  UpdateQuotationData
+  AllSalesData
 );
-QuotationRouter.delete(
-  "/delete-quotation/:id",
+SaleRouter.put(
+  "/update-sale/:id",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  DeleteQuotationData
+  UpdateSaleData
+);
+SaleRouter.delete(
+  "/delete-sale/:id",
+  UserUpdateAccessToken,
+  isAuthenticated,
+  authorizedRoles("admin"),
+  DeleteSaleData
 );
 
-export default QuotationRouter;
+export default SaleRouter;

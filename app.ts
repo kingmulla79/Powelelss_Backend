@@ -12,7 +12,7 @@ import AllowanceRouter from "./routes/allowances.routes";
 import DeductionRouter from "./routes/deductions.routes";
 import ExpenseRouter from "./routes/expense.routes";
 import PayrollRouter from "./routes/payroll.routes";
-import QuotationRouter from "./routes/quotation.routes";
+import SaleRouter from "./routes/sale.routes";
 import ServiceRouter from "./routes/client_service.routes";
 export const app = express();
 
@@ -23,7 +23,13 @@ app.use(express.json());
 app.use(cookieParser());
 
 //cors
-app.use(cors({ origin: process.env.ORIGIN }));
+app.use(
+  cors({
+    origin: process.env.ORIGIN,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+    credentials: true,
+  })
+);
 
 app.use(express.urlencoded({ extended: true }));
 
@@ -39,7 +45,7 @@ app.use("/api/allowance", AllowanceRouter);
 app.use("/api/deduction", DeductionRouter);
 app.use("/api/expense", ExpenseRouter);
 app.use("/api/payroll", PayrollRouter);
-app.use("/api/quotation", QuotationRouter);
+app.use("/api/sale", SaleRouter);
 app.use("/api/services", ServiceRouter);
 
 // middleware to catch error from unknown routes
