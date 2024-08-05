@@ -1,20 +1,17 @@
 import { Request, Response, NextFunction } from "express";
-import QuotationModel, { IQuotation } from "../models/quotation.model";
+import SaleModel, { ISale } from "../models/sale.model";
 import ErrorHandler from "../utils/Errorhandler";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
-import {
-  GetQuotationById,
-  GetAllQuotations,
-} from "../services/quotations.services";
+import { GetAllSales, GetSaleById } from "../services/sale.services";
 
-export const QuotationCodeRetrieve = CatchAsyncError(
+export const SaleCodeRetrieve = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const latest_quotation = await QuotationModel.findOne().sort({
+      const latest_sale = await SaleModel.findOne().sort({
         createdAt: -1,
       });
 
-      if (!latest_quotation) {
+      if (!latest_sale) {
         // there is no record saved yet, count defaults to 1
         res.status(200).json({
           success: true,
@@ -25,7 +22,7 @@ export const QuotationCodeRetrieve = CatchAsyncError(
         res.status(200).json({
           success: true,
           message: "Count successfully retrieved",
-          count: latest_quotation.count + 1,
+          count: latest_sale.count + 1,
         });
       }
     } catch (error: any) {
@@ -34,35 +31,35 @@ export const QuotationCodeRetrieve = CatchAsyncError(
   }
 );
 
-//new quotation entry
-export const QuotationEntry = CatchAsyncError(
+//new sale entry
+export const SaleEntry = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
-        quotation_no,
+        sale_no,
         client_name,
         client_email,
         client_address,
         client_contact_number,
-        quotation_date,
-        quotation_due_date,
+        sale_date,
+        sale_due_date,
         terms,
-        quotation_type,
-        quotation_details,
+        sale_type,
+        sale_details,
         status,
         count,
-      } = req.body as IQuotation;
+      } = req.body as ISale;
       if (
-        !quotation_no &&
+        !sale_no &&
         !client_name &&
         !client_address &&
         !client_email &&
         !client_contact_number &&
-        !quotation_date &&
-        !quotation_due_date &&
+        !sale_date &&
+        !sale_due_date &&
         !terms &&
-        !quotation_type &&
-        !quotation_details &&
+        !sale_type &&
+        !sale_details &&
         !status &&
         !count
       ) {
@@ -71,30 +68,30 @@ export const QuotationEntry = CatchAsyncError(
         );
       }
 
-      await QuotationModel.create({
-        quotation_no,
+      await SaleModel.create({
+        sale_no,
         client_name,
         client_email,
         client_address,
         client_contact_number,
-        quotation_date,
-        quotation_due_date,
+        sale_date,
+        sale_due_date,
         terms,
-        quotation_type,
-        quotation_details,
+        sale_type,
+        sale_details,
         status,
         count,
       })
         .then(() => {
           res.status(201).json({
             success: true,
-            messsage: `Quotation data saved successfully`,
+            messsage: `Sale data saved successfully`,
           });
         })
         .catch((error) => {
           return next(
             new ErrorHandler(
-              `The quotation data save operation was unsuccessful - ${error}`,
+              `The sale data save operation was unsuccessful - ${error}`,
               500
             )
           );
@@ -105,61 +102,84 @@ export const QuotationEntry = CatchAsyncError(
   }
 );
 
-//single quotation data
-export const SingleQuotationData = CatchAsyncError(
+//single sale data
+export const SingleSaleData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       if (!id) {
         return next(new ErrorHandler("There is no ID provided", 422));
       }
-      GetQuotationById(id, res);
+      GetSaleById(id, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
   }
 );
-
-//quotation data
-export const AllQuotationsData = CatchAsyncError(
+export const SaleFilter = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      GetAllQuotations(res);
+      const { type } = req.params;
+      const sale = await SaleModel.find({ sale_type: type });
+      if (sale.length === 0) {
+        return next(
+          new ErrorHandler(
+            `There is no record with the sale type: ${type}`,
+            500
+          )
+        );
+      }
+      res.status(200).json({
+        success: true,
+        message: "Data successfully fetched",
+        sale,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
   }
 );
 
-//update quotation data
-export const UpdateQuotationData = CatchAsyncError(
+//sale data
+export const AllSalesData = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      GetAllSales(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//update sale data
+export const UpdateSaleData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const {
-        quotation_no,
+        sale_no,
         client_name,
         client_email,
         client_address,
         client_contact_number,
-        quotation_date,
-        quotation_due_date,
+        sale_date,
+        sale_due_date,
         terms,
-        quotation_type,
-        quotation_details,
+        sale_type,
+        sale_details,
         status,
         count,
-      } = req.body as IQuotation;
+      } = req.body as ISale;
       if (
-        !quotation_no &&
+        !sale_no &&
         !client_name &&
         !client_address &&
         !client_email &&
         !client_contact_number &&
-        !quotation_date &&
-        !quotation_due_date &&
+        !sale_date &&
+        !sale_due_date &&
         !terms &&
-        !quotation_type &&
-        !quotation_details &&
+        !sale_type &&
+        !sale_details &&
         !status &&
         !count
       ) {
@@ -170,55 +190,55 @@ export const UpdateQuotationData = CatchAsyncError(
 
       const { id } = req.params;
 
-      const quotation = await QuotationModel.findById(id);
-      if (!quotation) {
-        new ErrorHandler("There is no quotation with the specified id", 409);
+      const sale = await SaleModel.findById(id);
+      if (!sale) {
+        new ErrorHandler("There is no sale with the specified id", 409);
       }
-      if (quotation && quotation_no) {
-        quotation.quotation_no = quotation_no;
+      if (sale && sale_no) {
+        sale.sale_no = sale_no;
       }
-      if (quotation && client_name) {
-        quotation.client_name = client_name;
-      }
-
-      if (quotation && client_address) {
-        quotation.client_address = client_address;
-      }
-      if (quotation && client_email) {
-        quotation.client_email = client_email;
-      }
-      if (quotation && client_contact_number) {
-        quotation.client_contact_number = client_contact_number;
-      }
-      if (quotation && quotation_date) {
-        quotation.quotation_date = quotation_date;
-      }
-      if (quotation && quotation_due_date) {
-        quotation.quotation_due_date = quotation_due_date;
-      }
-      if (quotation && terms) {
-        quotation.terms = terms;
-      }
-      if (quotation && quotation_type) {
-        quotation.quotation_type = quotation_type;
-      }
-      if (quotation && quotation_details) {
-        quotation.quotation_details = quotation_details;
-      }
-      if (quotation && status) {
-        quotation.status = status;
-      }
-      if (quotation && count) {
-        quotation.count = count;
+      if (sale && client_name) {
+        sale.client_name = client_name;
       }
 
-      await quotation
+      if (sale && client_address) {
+        sale.client_address = client_address;
+      }
+      if (sale && client_email) {
+        sale.client_email = client_email;
+      }
+      if (sale && client_contact_number) {
+        sale.client_contact_number = client_contact_number;
+      }
+      if (sale && sale_date) {
+        sale.sale_date = sale_date;
+      }
+      if (sale && sale_due_date) {
+        sale.sale_due_date = sale_due_date;
+      }
+      if (sale && terms) {
+        sale.terms = terms;
+      }
+      if (sale && sale_type) {
+        sale.sale_type = sale_type;
+      }
+      if (sale && sale_details) {
+        sale.sale_details = sale_details;
+      }
+      if (sale && status) {
+        sale.status = status;
+      }
+      if (sale && count) {
+        sale.count = count;
+      }
+
+      await sale
         ?.save()
         .then(() => {
           res.status(201).json({
             success: true,
             message: "Information successfully updated",
-            quotation,
+            sale,
           });
         })
         .catch((error: any) => {
@@ -230,20 +250,20 @@ export const UpdateQuotationData = CatchAsyncError(
   }
 );
 
-// delete quotation
-export const DeleteQuotationData = CatchAsyncError(
+// delete sale
+export const DeleteSaleData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id;
-      const quotation = await QuotationModel.findByIdAndDelete(id);
-      if (!quotation) {
-        return next(new ErrorHandler("The quotation doesn't exist", 409));
+      const sale = await SaleModel.findByIdAndDelete(id);
+      if (!sale) {
+        return next(new ErrorHandler("The sale doesn't exist", 409));
       }
 
       res.status(200).json({
         success: true,
-        message: `The quotation data successfully deleted`,
-        quotation,
+        message: `The sale data successfully deleted`,
+        sale,
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
