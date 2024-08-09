@@ -3,65 +3,65 @@ import express from "express";
 import { UserUpdateAccessToken } from "../controllers/user.controllers";
 import { authorizedRoles, isAuthenticated } from "../middleware/Auth";
 import {
-  AllSalesData,
-  DeleteSaleData,
-  SaleCodeRetrieve,
-  SaleEntry,
-  SaleFilter,
-  SingleSaleData,
-  UpdateSaleData,
-} from "../controllers/sale.controllers";
+  AllInvoicesData,
+  DeleteInvoiceData,
+  InvoiceCodeRetrieve,
+  InvoiceEntry,
+  InvoiceFilter,
+  SingleInvoiceData,
+  UpdateInvoiceData,
+} from "../controllers/invoice.controllers";
 
-const SaleRouter = express.Router();
+const InvoiceRouter = express.Router();
 
-SaleRouter.get(
+InvoiceRouter.get(
   "/get-count",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  SaleCodeRetrieve
+  InvoiceCodeRetrieve
 );
-SaleRouter.post(
-  "/new-sale",
+InvoiceRouter.post(
+  "/new-invoice",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  SaleEntry
+  InvoiceEntry
 );
-SaleRouter.get(
-  "/single-sale/:id",
+InvoiceRouter.get(
+  "/single-invoice/:id",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  SingleSaleData
+  SingleInvoiceData
 );
-SaleRouter.get(
-  "/sale-type/:type",
+InvoiceRouter.get(
+  "/invoice-type/:type",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  SaleFilter
+  InvoiceFilter
 );
-SaleRouter.get(
-  "/all-sales",
+InvoiceRouter.get(
+  "/all-invoices",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  AllSalesData
+  AllInvoicesData
 );
-SaleRouter.put(
-  "/update-sale/:id",
+InvoiceRouter.put(
+  "/update-invoice/:id",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  UpdateSaleData
+  UpdateInvoiceData
 );
-SaleRouter.delete(
-  "/delete-sale/:id",
+InvoiceRouter.delete(
+  "/delete-invoice/:id",
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  DeleteSaleData
+  DeleteInvoiceData
 );
 
-export default SaleRouter;
+export default InvoiceRouter;

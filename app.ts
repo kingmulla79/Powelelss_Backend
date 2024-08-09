@@ -12,8 +12,9 @@ import AllowanceRouter from "./routes/allowances.routes";
 import DeductionRouter from "./routes/deductions.routes";
 import ExpenseRouter from "./routes/expense.routes";
 import PayrollRouter from "./routes/payroll.routes";
-import SaleRouter from "./routes/sale.routes";
+import InvoiceRouter from "./routes/invoice.routes";
 import ServiceRouter from "./routes/client_service.routes";
+import QuotationRouter from "./routes/quotation.routes";
 export const app = express();
 
 //body parser
@@ -45,7 +46,8 @@ app.use("/api/allowance", AllowanceRouter);
 app.use("/api/deduction", DeductionRouter);
 app.use("/api/expense", ExpenseRouter);
 app.use("/api/payroll", PayrollRouter);
-app.use("/api/sale", SaleRouter);
+app.use("/api/invoice", InvoiceRouter);
+app.use("/api/quotation", QuotationRouter);
 app.use("/api/services", ServiceRouter);
 
 // middleware to catch error from unknown routes
