@@ -13,48 +13,51 @@ export interface IService extends Document {
   count: number;
 }
 
-const ServiceSchema: Schema<IService> = new mongoose.Schema({
-  client_name: {
-    type: String,
-    required: true,
+const ServiceSchema: Schema<IService> = new mongoose.Schema(
+  {
+    client_name: {
+      type: String,
+      required: true,
+    },
+    invoice_code: {
+      type: String,
+      required: true,
+    },
+    work_location: {
+      type: String,
+      required: true,
+    },
+    scope: {
+      type: String,
+      required: true,
+    },
+    scope_description: {
+      type: String,
+      required: true,
+    },
+    staff_member: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Staff",
+    },
+    work_duration: {
+      type: Number,
+      required: true,
+    },
+    date: {
+      type: String,
+      required: true,
+    },
+    cost: {
+      type: Number,
+      required: true,
+    },
+    count: {
+      type: Number,
+      required: true,
+    },
   },
-  invoice_code: {
-    type: String,
-    required: true,
-  },
-  work_location: {
-    type: String,
-    required: true,
-  },
-  scope: {
-    type: String,
-    required: true,
-  },
-  scope_description: {
-    type: String,
-    required: true,
-  },
-  staff_member: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Staff",
-  },
-  work_duration: {
-    type: Number,
-    required: true,
-  },
-  date: {
-    type: String,
-    required: true,
-  },
-  cost: {
-    type: Number,
-    required: true,
-  },
-  count: {
-    type: Number,
-    required: true,
-  },
-});
+  { timestamps: true }
+);
 
 const ServiceModel: Model<IService> = mongoose.model("Service", ServiceSchema);
 
