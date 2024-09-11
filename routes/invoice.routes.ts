@@ -7,7 +7,8 @@ import {
   DeleteInvoiceData,
   InvoiceCodeRetrieve,
   InvoiceEntry,
-  InvoiceFilter,
+  InvoiceTypeFilter,
+  InvoiceFilterByCustomer,
   SingleInvoiceData,
   UpdateInvoiceData,
 } from "../controllers/invoice.controllers";
@@ -40,7 +41,14 @@ InvoiceRouter.get(
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  InvoiceFilter
+  InvoiceTypeFilter
+);
+InvoiceRouter.get(
+  "/invoice-by-customer/:client_name",
+  UserUpdateAccessToken,
+  isAuthenticated,
+  authorizedRoles("admin"),
+  InvoiceFilterByCustomer
 );
 InvoiceRouter.get(
   "/all-invoices",

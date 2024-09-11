@@ -7,7 +7,8 @@ import {
   DeleteQuotationData,
   QuotationCodeRetrieve,
   QuotationEntry,
-  QuotationFilter,
+  QuotationTypeFilter,
+  QuotationFilterByCustomer,
   SingleQuotationData,
   UpdateQuotationData,
 } from "../controllers/quotation.controllers";
@@ -40,7 +41,14 @@ QuotationRouter.get(
   UserUpdateAccessToken,
   isAuthenticated,
   authorizedRoles("admin"),
-  QuotationFilter
+  QuotationTypeFilter
+);
+QuotationRouter.get(
+  "/quotation-by-customer/:client_name",
+  UserUpdateAccessToken,
+  isAuthenticated,
+  authorizedRoles("admin"),
+  QuotationFilterByCustomer
 );
 QuotationRouter.get(
   "/all-quotations",
