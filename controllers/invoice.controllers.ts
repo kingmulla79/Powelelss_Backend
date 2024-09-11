@@ -116,7 +116,7 @@ export const SingleInvoiceData = CatchAsyncError(
     }
   }
 );
-export const InvoiceFilter = CatchAsyncError(
+export const InvoiceTypeFilter = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { type } = req.params;
@@ -140,6 +140,29 @@ export const InvoiceFilter = CatchAsyncError(
   }
 );
 
+export const InvoiceFilterByCustomer = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { client_name } = req.params;
+      const invoice = await InvoiceModel.find({ client_name: client_name });
+      if (invoice.length === 0) {
+        return next(
+          new ErrorHandler(
+            `There is no record with the customer name: ${client_name}`,
+            500
+          )
+        );
+      }
+      res.status(200).json({
+        success: true,
+        message: "Data successfully fetched",
+        invoice,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
 //invoice data
 export const AllInvoicesData = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {

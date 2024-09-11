@@ -119,7 +119,7 @@ export const SingleQuotationData = CatchAsyncError(
     }
   }
 );
-export const QuotationFilter = CatchAsyncError(
+export const QuotationTypeFilter = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { type } = req.params;
@@ -128,6 +128,30 @@ export const QuotationFilter = CatchAsyncError(
         return next(
           new ErrorHandler(
             `There is no record with the quotation type: ${type}`,
+            500
+          )
+        );
+      }
+      res.status(200).json({
+        success: true,
+        message: "Data successfully fetched",
+        quotation,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+export const QuotationFilterByCustomer = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { client_name } = req.params;
+      const quotation = await QuotationModel.find({ client_name: client_name });
+      if (quotation.length === 0) {
+        return next(
+          new ErrorHandler(
+            `There is no record with the customer name: ${client_name}`,
             500
           )
         );
